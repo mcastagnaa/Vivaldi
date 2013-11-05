@@ -1,0 +1,6 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_Reports
+	ADD PrintEoD Bit DEFAULT 1
+GO

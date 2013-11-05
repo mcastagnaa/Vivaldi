@@ -1,0 +1,7 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_BMISAssets
+	ADD IsDerivative bit DEFAULT 0
+GO
+

@@ -1,0 +1,7 @@
+USE VIVALDI
+GO
+
+ALTER TABLE tbl_BMISAssets
+	ADD IsCCYExp bit DEFAULT 0
+GO
+

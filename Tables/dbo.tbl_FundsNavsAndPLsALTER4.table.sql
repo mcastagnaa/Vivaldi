@@ -1,0 +1,7 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_FundsNavsAndPLs
+	ADD CCYExposure float DEFAULT 0
+GO
+

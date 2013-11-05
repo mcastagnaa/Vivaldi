@@ -1,0 +1,6 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_Reports
+	ADD IsAvailable bit DEFAULT 1 NOT NULL
+GO

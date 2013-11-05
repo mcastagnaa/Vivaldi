@@ -1,0 +1,7 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_Funds
+	ADD  GetFactorsLoad bit DEFAULT 0 NOT NULL
+GO
+

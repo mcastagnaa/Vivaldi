@@ -1,0 +1,9 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_FundsNavsAndPLs
+	ADD AssetPl float DEFAULT 0 NOT NULL
+GO
+ALTER TABLE tbl_FundsNavsAndPLs
+	ADD FxPl float DEFAULT 0 NOT NULL
+GO

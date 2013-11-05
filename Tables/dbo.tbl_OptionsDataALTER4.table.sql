@@ -1,0 +1,6 @@
+USE RM_PTFL
+GO
+ALTER TABLE tbl_OptionsData
+	ADD UnderValPt Float DEFAULT 1
+GO
+

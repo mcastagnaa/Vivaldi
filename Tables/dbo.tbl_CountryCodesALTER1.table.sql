@@ -1,0 +1,7 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_CountryCodes
+	ADD  IsLxEM bit DEFAULT 0 NOT NULL
+GO
+

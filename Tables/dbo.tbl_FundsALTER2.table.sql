@@ -1,0 +1,7 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_Funds
+	ADD  PercDayVol float DEFAULT 0.1 NOT NULL
+GO
+

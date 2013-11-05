@@ -1,0 +1,6 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_EnumVaRReports
+	ADD IsRelative bit DEFAULT 0 NOT NULL
+GO

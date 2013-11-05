@@ -1,0 +1,7 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_Funds
+	ADD  SectorsDef NVARCHAR (10) DEFAULT 'BBG'
+GO
+

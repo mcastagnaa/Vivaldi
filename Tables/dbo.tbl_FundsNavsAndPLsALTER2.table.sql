@@ -1,0 +1,6 @@
+USE RM_PTFL
+GO
+
+ALTER TABLE tbl_FundsNavsAndPLs
+	ADD PositionsCount int DEFAULT 0 NOT NULL
+GO
