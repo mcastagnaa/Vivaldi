@@ -19,6 +19,7 @@ CREATE PROCEDURE dbo.spS_GetDashboardRiskRep
 	, @Lookback integer
 	, @Offshore bit
 	, @Select bit
+	, @HF bit
 AS
 
 SET NOCOUNT ON;
@@ -31,18 +32,32 @@ SET @FirstDate = Dateadd(mm, - @LookBack, @RefDate)
 */
 
 ----------------------------------------------------------------------
+--== Clean up SIG/Factset data --==
+SELECT *
+INTO #FactsetSet
+FROM [Product].dbo.vew_FSR_FacstetDailyRisk
+WHERE	NavDate <= @RefDate
+		AND NavDate >= @FirstDate
+-- cleanup clauses
+		AND [Portfolio VAR] < 50
+		AND FundCode NOT IN 
+		('SKEUREQ', 'SKGBLBND', 'SKUSCAPGR', 'SKJPNEQ', 'SKUKCONST', 'SKGEQ')
+
+----------------------------------------------------------------------
 --== THE DATES BIT SIG ==--
 SELECT	V.FundCode
 		, MAX(NAVDate) AS LastDate
 INTO	#LDatesSIG
-FROM	[OMAMPROD01].[Product].dbo.vew_FSR_FacstetDailyRisk AS V 
+FROM	#FactsetSet AS V
+--FROM	[OMAMPROD01].[Product].dbo.vew_FSR_FacstetDailyRisk AS V 
 WHERE		V.NaVDate <= @RefDate
 GROUP BY	V.FundCode
 
 SELECT	V.FundCode
 		, MAX(NAVDate) AS PrevDate
 INTO	#PDatesSIG
-FROM	[OMAMPROD01].[Product].dbo.vew_FSR_FacstetDailyRisk AS V FULL JOIN
+FROM	#FactsetSet AS V FULL JOIN
+--FROM	[OMAMPROD01].[Product].dbo.vew_FSR_FacstetDailyRisk AS V FULL JOIN
 		#LDatesSIG AS L ON (
 			V.FundCode = L.FundCode
 		)
@@ -77,7 +92,8 @@ SELECT	V.FundCode
 		, V.[Net Weight]/100 AS NetExp
 		, L.LastDate
 INTO	#LastVaRSIG
-FROM	[PRODUCT].dbo.vew_FSR_FacstetDailyRisk AS V FULL JOIN
+FROM	#FactsetSet AS V FULL JOIN
+--FROM	[PRODUCT].dbo.vew_FSR_FacstetDailyRisk AS V FULL JOIN
 		#LDatesSIG AS L ON (
 			V.NaVDate = L.LastDate
 			AND V.FundCode = L.FundCode
@@ -92,7 +108,8 @@ SELECT	V.FundCode
 		, V.[Net Weight]/100 AS NetExp
 		, L.PrevDate
 INTO	#PrevVaRSIG
-FROM	[PRODUCT].dbo.vew_FSR_FacstetDailyRisk AS V FULL JOIN
+FROM	#FactsetSet AS V FULL JOIN
+--FROM	[PRODUCT].dbo.vew_FSR_FacstetDailyRisk AS V FULL JOIN
 		#PDatesSIG AS L ON (
 			V.NaVDate = L.PrevDate
 			AND V.FundCode = L.FundCode
@@ -121,9 +138,6 @@ FROM	vw_TotalVaRByFundByDate AS V FULL JOIN
 			AND V.FundID = E.FundId
 			)
 WHERE L.LastDate IS NOT NULL
-/*	AND B.VaRBench/E.CostNaV < 7
-	AND E.GrossExposure < 600
- not tested!*/
 
 --== PREV VALUES OMAM ==--
 SELECT	V.FundId
@@ -177,7 +191,8 @@ SELECT	V.FundCode
 					V.[Portfolio Gross Return] THEN 1 
 					ELSE 0 END) AS VaREventsPos*/
 INTO	#PerSIG
-FROM	[Product].dbo.vew_FSR_FacstetDailyRisk AS V
+FROM	#FactsetSet AS V
+--FROM	[Product].dbo.vew_FSR_FacstetDailyRisk AS V
 WHERE		V.NaVDate <= @RefDate
 			AND V.NaVDate > @FirstDate
 GROUP BY	V.FundCode
@@ -267,7 +282,7 @@ SELECT	PerOMAM.VaRModel
 		, LOMAM.BenchVaR AS LastBenVaR
 		, POMAM.BenchVaR AS PrevBenVaR
 		, LOMAM.BenchVaR-POMAM.BenchVaR AS BenVaRDiff
-		, LOMAM.PortVaR/LOMAM.BenchVaR AS LastPortBenVaRRatio
+		, LOMAM.PortVaR/NULLIF(LOMAM.BenchVaR,0) AS LastPortBenVaRRatio
 		, PerOMAM.GrossExpMin
 		, PerOMAM.GrossExpMax
 		, PerOMAM.GrossExpAvg
@@ -323,7 +338,7 @@ SELECT	PerSIG.VaRModel
 		, LSIG.BenchVaR AS LastBenVaR
 		, PSIG.BenchVaR AS PrevBenVaR
 		, LSIG.BenchVaR-PSIG.BenchVaR AS BenVaRDiff
-		, LSIG.PortVaR/LSIG.BenchVaR AS LastPortBenVaRRatio
+		, LSIG.PortVaR/NULLIF(LSIG.BenchVaR,0) AS LastPortBenVaRRatio
 		, PerSIG.GrossExpMin
 		, PerSIG.GrossExpMax
 		, PerSIG.GrossExpAvg
@@ -392,7 +407,7 @@ SELECT	Prod.ShortCode AS FundCode
 			'<font color="' + (CASE WHEN FS.VaRDiff > 0 THEN 'green' ELSE 'red' END) +  
 			'">' + CAST(ROUND(FS.VaRDiff,4) * 10000 AS NVARCHAR(7)) + 'b</font>)' AS VaRLabel
 		, FS.LastBenVaR
-		, FS.LastVaR/LastBenVaR AS VaRatio
+		, FS.LastVaR/NULLIF(LastBenVaR,0) AS VaRatio
 		, FS.PortVaRAvg
 		, FS.PortVaRMin
 		, FS.PortVaRMax
@@ -401,7 +416,7 @@ SELECT	Prod.ShortCode AS FundCode
 				+ CAST(ROUND(FS.PortVaRMax,4) * 100 AS NVARCHAR(7)) + 
 				'</font>)' AS VaRRange
 		, FS.BenVaRAvg
-		, FS.PortVaRAvg/FS.BenVaRAvg AS VaRAvgRatio
+		, FS.PortVaRAvg/NULLIF(FS.BenVaRAvg,0) AS VaRAvgRatio
 		, FS.ExpectedVaREvents
 		, FS.VaREventsNeg AS VaREvents
 		, (CASE WHEN Prod.RiskLimitName = 'Exposure' THEN NULL 
@@ -434,7 +449,7 @@ SELECT	Prod.ShortCode AS FundCode
 				WHEN 'Absolute' THEN
 					((CASE FS.ConfidenceInt WHEN 0.95 THEN 1.414319 ELSE 1 END) * FS.LastVaR) 
 				WHEN 'Relative' THEN
-					FS.LastVaR/LastBenVaR 
+					FS.LastVaR/NULLIF(LastBenVaR,0)
 				WHEN 'Exposure' THEN
 					FS.LastGrossExp 
 				ELSE null
@@ -455,12 +470,15 @@ WHERE	Prod.InceptionDate < @RefDate
 		AND ISNULL(Prod.CloseDate,GetDate()) > @RefDate
 --		AND NOT (Prod.OurTeam = 'ExtSStrat' AND Prod.IsSelect = 1)
 		AND (@Offshore = 0 OR Prod.SoldAs = 'UCITS4')
-		AND (@Select = 0 OR (Prod.IsSelect = 1))
+		AND (@Select = 0 OR Prod.IsSelect = 1)
 		AND	Prod.ShortCode NOT IN ('OMTSY')
+		AND (@HF = 0 OR Prod.SoldAs = 'HF')
 
-ORDER BY	Prod.OurTeam
+--ORDER BY	Prod.ShortCode
+/*ORDER BY	Prod.OurTeam
 			, Prod.OurPM
 			, Prod.SoldAs
+*/
 
 ----------------------------------------------------------------------
 --== TESTS ==--

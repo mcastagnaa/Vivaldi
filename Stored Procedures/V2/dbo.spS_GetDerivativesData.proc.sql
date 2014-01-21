@@ -146,4 +146,4 @@ DROP TABLE	#DerivDets
 GO
 
 ----------------------------------------------------------------------------------
-GRANT EXECUTE ON dbo.spS_GetDerivativesData TO [OMAM\StephaneD], [OMAM\MargaretA]
+GRANT EXECUTE ON dbo.spS_GetDerivativesData TO [OMAM\StephaneD]

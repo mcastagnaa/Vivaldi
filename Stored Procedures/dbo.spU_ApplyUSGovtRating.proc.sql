@@ -82,13 +82,13 @@ WHERE	CountryISO in ('IT')
 	AND  PriceDate = @RefDate
 
 UPDATE	tbl_AssetPrices
-SET 	SPRating = 'AA+'
+SET 	SPRating = 'AAA'
 WHERE	CountryISO in ('GB')
 	AND (SecurityType IN ('TBills') OR (SecurityGroup = 'FixedIn' AND Description like 'UKT%'))
 	AND  PriceDate = @RefDate
 
 UPDATE	tbl_AssetPrices
-SET 	SPRating = 'AA+'
+SET 	SPRating = 'AAA'
 WHERE	CountryISO in ('GB')
 	AND SecurityType IN ('BondFut', 'BondFutOpt')
 	AND  PriceDate = @RefDate

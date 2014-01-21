@@ -826,7 +826,7 @@ SELECT	PositionDate
 			RawData.OptPXScale /
 			RawData.PenceQuotesDivider /
 			RawData.PriceDivider * 
-			RawData.UnderFutConvFactor
+			ISNULL(RawData.UnderFutConvFactor,1)
 
 		WHEN RawData.SecurityType in ('CDS', 'CDSIndex') THEN
 		-dbo.fn_GetBaseCCYPrice(
