@@ -220,6 +220,7 @@ FROM	#BigChanges AS BigChanges LEFT JOIN
 		AND BaseCCYData.LastQuoteDate = BigChanges.PositionDate
 		)
 
+ORDER BY Funds.FundCode
 
 ----------------------------------------------------------------------------------
 
@@ -228,4 +229,4 @@ DROP Table #BigChanges
 
 GO
 
-GRANT EXECUTE ON spS_WhosHoldingBigChanges TO [OMAM\StephaneD], [OMAM\MargaretA]
+GRANT EXECUTE ON spS_WhosHoldingBigChanges TO [OMAM\StephaneD]

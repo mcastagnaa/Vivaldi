@@ -1,5 +1,4 @@
-USE [RM_PTFL]
-GO
+USE VIVALDI;
 
 SET ANSI_NULLS ON
 GO
@@ -78,4 +77,4 @@ DROP Table #FactorAvgs
 
 GO
 
-GRANT EXECUTE ON spS_GetFactorsLoading TO [OMAM\StephaneD], [OMAM\MargaretA]
+GRANT EXECUTE ON spS_GetFactorsLoading TO [OMAM\StephaneD]

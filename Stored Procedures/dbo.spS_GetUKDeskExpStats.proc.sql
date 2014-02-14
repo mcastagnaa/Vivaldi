@@ -41,7 +41,7 @@ WHERE	/*People.PeopleCode = 'ACB'
 	AND FM.RoleId = 2
 	AND Funds.Alive = 1
 	AND Funds.Skip = 0
-	AND Funds.FundCode not in ('SMFO')
+	--AND Funds.FundCode not in ('SMFO')
 
 GROUP BY FUnds.FundCode
 
@@ -190,4 +190,4 @@ DROP TABLE #1m
 
 GO
 
-GRANT EXECUTE ON spS_GetUKDeskExpStats TO [OMAM\StephaneD], [OMAM\MargaretA]		
+GRANT EXECUTE ON spS_GetUKDeskExpStats TO [OMAM\StephaneD]

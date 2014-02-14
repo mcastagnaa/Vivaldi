@@ -26,12 +26,13 @@ USE VIVALDI
 --EXEC spU_AddVaRReportPORT
 --EXEC dbo.spS_CheckFutOffsets '2013 Jun 24'
 --EXEC spS_GetDerivativesCashData '2013-11-22', null
+EXEC spS_GetFoFsDetails '2014-Feb-6'
 
 -------------------LIQUIDITY PROCS
 --EXEC spS_LIQ_CalculateBFundsLoss '2011-Oct-26', null
 
 --EXEC dbo.spS_GetFundsDetailsByDateAF_V2 '2011-7-5', null, null, 'B24CGK7'
-SELECT * FROM dbo.fn_GetCubeDataTable('15 Jan 2014', null)-- WHERE BMISCode = 'G H3 Comdty'
+--SELECT * FROM dbo.fn_GetCubeDataTable('5 Feb 2014', 128)-- WHERE BMISCode = 'G H3 Comdty'
 
 --SELECT * FROM vw_TotalVarbYFundByDate WHERE FundId = 18 AND VaRDate = '1 Nov 2012'
 

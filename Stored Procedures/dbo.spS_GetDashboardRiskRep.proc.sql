@@ -40,8 +40,9 @@ WHERE	NavDate <= @RefDate
 		AND NavDate >= @FirstDate
 -- cleanup clauses
 		AND [Portfolio VAR] < 50
-		AND FundCode NOT IN 
-		('SKEUREQ', 'SKGBLBND', 'SKUSCAPGR', 'SKJPNEQ', 'SKUKCONST', 'SKGEQ')
+		/*AND FundCode NOT IN 
+		('SKEUREQ', 'SKGBLBND', 'SKUSCAPGR', 'SKJPNEQ', 'SKUKCONST', 'SKGEQ'
+		, 'SKSPEC3', 'SKSPEC4', 'SKSPEC5', 'SKSPEC6', 'SKSPEC7', 'SKSPEC8')*/
 
 ----------------------------------------------------------------------
 --== THE DATES BIT SIG ==--
@@ -368,8 +369,10 @@ FROM	#PerSIG AS PerSIG LEFT JOIN
 		#PrevVaRSIG AS PSIG ON (
 			PerSIG.FundCode = PSIG.FundCode
 			)
-WHERE PerSIG.FundCode NOT IN ('SKGBLBND', 'SKEUREQ', 'SKJPNEQ', 'SKGEQ', 
-			'SKUKCONST')
+WHERE PerSIG.FundCode NOT IN 
+		('SKGBLBND', 'SKEUREQ', 'SKJPNEQ', 'SKGEQ', 'SKUKCONST'
+		, 'SKSPEC3', 'SKSPEC4', 'SKSPEC5', 'SKSPEC6', 'SKSPEC7', 'SKSPEC8'
+		, 'SKGEN34', 'SKGEN36', 'SKGEN44', 'SKGEN46')
 
 ----------------------------------------------------------------------
 --== ADDING FUND DETAILS ==--

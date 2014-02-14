@@ -25,7 +25,10 @@ Use Vivaldi;
 --EXEC spS_UCITSScenarioQData '2013 May 9'
 --EXEC spS_GetScenariosByIdByDate '2013 May 9', 27
 --EXEC spS_GetScenCountComp '2013 May 10'
-EXEC spS_GetDashboardRiskRep '2014 Jan 9', 3, 0, 0, 1 
+--EXEC spS_GetDashboardRiskRep '2014 Jan 19', 3, 0, 0, 0 
+								-- date, Lookback,Offshore,Select,HF
+EXEC spS_GetFoFTypeLoading '2014 Feb 5', 128
+
 
 --SELECT FundId, ReportId FROM tbl_ScenReports
 --WHERE ReportDate = '2013 May 9' AND FUNDid in (14, 23, 60)

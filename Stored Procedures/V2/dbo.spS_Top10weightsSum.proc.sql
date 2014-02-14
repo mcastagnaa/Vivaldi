@@ -182,6 +182,8 @@ FROM	#Conc AS Conc LEFT JOIN
 		)
 
 WHERE	Funds.FundClassId = 1
+		AND Funds.IsAlive = 1
+		AND Funds.IsSkip = 0
 ORDER BY HoDCode, FundCode
 
 

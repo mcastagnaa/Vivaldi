@@ -22,13 +22,19 @@ AS
 	SET 	BBGInstrId = 'VaRTotal' 
 		, UnusedID = null
 		, SecName = null
-	
 	FROM tbl_VaRReports AS V JOIN INSERTED AS I ON
 		(V.ReportDate = I.ReportDate
 		AND V.ReportId = I.ReportId
 		AND V.SecTicker = I.SecTicker)
-		
 	WHERE V.SecTicker = 'Totals'
+
+	UPDATE	tbl_VaRReports
+	SET		BBGInstrId = 'EQ0000000033226494'
+	FROM	tbl_VaRReports AS V JOIN INSERTED AS I ON
+			(V.ReportDate = I.ReportDate
+				AND V.ReportId = I.ReportId
+				AND V.SecTicker = I.SecTicker)
+	WHERE	I.BBGInstrId = 'EQ0000000012165557'
 GO
 
 
