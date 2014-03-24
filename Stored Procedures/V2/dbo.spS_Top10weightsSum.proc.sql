@@ -181,9 +181,10 @@ FROM	#Conc AS Conc LEFT JOIN
 		AND Conc.RefDate = Stats.NaVPLDate
 		)
 
-WHERE	Funds.FundClassId = 1
-		AND Funds.IsAlive = 1
+WHERE	Funds.IsAlive = 1
+--		AND Funds.FundClassId = 1 -- only equity funds
 		AND Funds.IsSkip = 0
+--		AND Funds.VehicleId = 2 -- UCITS4
 ORDER BY HoDCode, FundCode
 
 

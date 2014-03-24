@@ -1,7 +1,7 @@
 USE VIVALDI
 --EXEC dbo.spS_GetFundsDetailsByDateUKSEF 0.2
---EXEC dbo.spS_GetFundsDetailsByDate_V2 null, 43, null
---EXEC dbo.spS_GetNaVPLExpData_V2 '2014-1-15', null
+--EXEC dbo.spS_GetFundsDetailsByDate_V2 '2014 Feb 20', 35 , null
+--EXEC dbo.spS_GetNaVPLExpData_V2 '2014-3-4', 5
 --EXEC dbo.spS_GetFundsDetailsAndRiskByDate_V2 '12 Dec 2012', 18, null
 --EXEC dbo.spS_CalcFundsStatistics_V2 '2012-12-12', null, null
 --EXEC dbo.spS_GetFundsFactorsExposure_V2 '2012-12-12', null, null
@@ -26,7 +26,7 @@ USE VIVALDI
 --EXEC spU_AddVaRReportPORT
 --EXEC dbo.spS_CheckFutOffsets '2013 Jun 24'
 --EXEC spS_GetDerivativesCashData '2013-11-22', null
-EXEC spS_GetFoFsDetails '2014-Feb-6'
+--EXEC spS_GetFoFsDetails '2014-Feb-6'
 
 -------------------LIQUIDITY PROCS
 --EXEC spS_LIQ_CalculateBFundsLoss '2011-Oct-26', null
@@ -39,3 +39,5 @@ EXEC spS_GetFoFsDetails '2014-Feb-6'
 --EXEC dbo.spS_GetScenariosByFundByDate '2012 Nov 1', 18
 
 --EXEC dbo.spS_GetLastProdChanges '2013 Jul 3', 3
+
+EXEC spS_GetOMGIEqExp '19/Mar/2014', null

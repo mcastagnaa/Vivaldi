@@ -91,7 +91,8 @@ FROM	#Test1 AS Test1 LEFT JOIN
 	)
 
 WHERE	VaRs.MargVAR is null
-	AND Test1.FundId not in (2, 46, 17, 92, 65, 66, 67, 78)
+	AND Test1.FundId not in (2, 46, 17, 92, 65, 66, 67, 78, 137
+			, 138, 139, 141, 142, 143, 144, 145)
 		-- AS5, AS17, GEMPLUS, OMTSY, UTIMCOs
 	AND Test1.PositionId not in ('6339162', 'B08K3V3', '9110427', '9190935',
 			'B7HKGH0', 'B4558J2', 'B8KLKR5', 'B46J6L1', 'B8Y2Q10', 

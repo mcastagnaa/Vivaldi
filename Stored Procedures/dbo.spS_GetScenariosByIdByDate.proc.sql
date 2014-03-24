@@ -24,6 +24,8 @@ SET NOCOUNT ON;
 
 SELECT	ScenView.*
 	, ScenData.ReportDate
+	, F.FundCode
+	, F.FundName
 	, ScenData.PortPerf*ScenData.MktVal/NaVs.CostNav/100 AS PortPerf
 	, ScenData.BenchPerf/100 AS BenchPerf
 	, ScenData.PortPerf*ScenData.MktVal/NaVs.CostNav/100 - ScenData.BenchPerf/100 AS RelPerf
@@ -34,7 +36,8 @@ FROM	tbl_ScenReports AS ScenData LEFT JOIN
 		tbl_FundsNaVsAndPLs AS NaVs ON (
 			NaVs.FundId = ScenData.FundId
 			AND NaVs.NaVPLDate = ScenData.ReportDate
-		)
+		) LEFT JOIN
+		tbl_Funds AS F ON (ScenData.FundId = F.Id)
 WHERE	ScenData.ReportDate = @RefDate
 	AND	ScenView.Id= @ScenarioId
 

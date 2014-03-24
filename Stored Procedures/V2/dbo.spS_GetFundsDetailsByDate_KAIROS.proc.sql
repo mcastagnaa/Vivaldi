@@ -26,9 +26,7 @@ SET NOCOUNT ON;
 ----------------------------------------------------------------------------------
 UPDATE tbl_Funds
 SET SectorsDef = 'GICS'
-WHERE FundCode = 'UKSEF'
-
-
+WHERE Id = @FundId
 
 ----------------------------------------------------------------------------------
 SELECT * INTO #CubeData FROM fn_GetCubeDataTable(@RefDate, @FundId)
@@ -207,7 +205,7 @@ ORDER BY	CubeData.BaseCCYExposure / NaVs.CostNaV * CountMeExp DESC
 
 UPDATE tbl_Funds
 SET SectorsDef = 'BBG'
-WHERE FundCode = 'UKSEF'
+WHERE id = @FundId
 
 ----------------------------------------------------------------------------------
 DROP TABLE #CubeData

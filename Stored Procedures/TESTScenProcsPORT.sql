@@ -23,13 +23,14 @@ Use Vivaldi;
 --EXEC spS_GetScenariosByFundByDate '2013 May 9', 41
 
 --EXEC spS_UCITSScenarioQData '2013 May 9'
---EXEC spS_GetScenariosByIdByDate '2013 May 9', 27
+--EXEC spS_GetScenariosByIdByDate '2014 February 28', 34
 --EXEC spS_GetScenCountComp '2013 May 10'
---EXEC spS_GetDashboardRiskRep '2014 Jan 19', 3, 0, 0, 0 
+--EXEC spS_GetDashboardRiskRep '2014 Mar 5', 3, 0, 0, 0 
 								-- date, Lookback,Offshore,Select,HF
-EXEC spS_GetFoFTypeLoading '2014 Feb 5', 128
-
+--EXEC spS_GetFoFTypeLoading '2014 Feb 5', 128
+--EXEC spS_GetOMGIEqExp '2014 Feb 5', null
 
 --SELECT FundId, ReportId FROM tbl_ScenReports
 --WHERE ReportDate = '2013 May 9' AND FUNDid in (14, 23, 60)
 --GROUP by FundId
+EXEC spS_VaRReportsDetailsByDate '2014 Mar 5', 12
