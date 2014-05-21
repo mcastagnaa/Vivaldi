@@ -842,7 +842,7 @@ SELECT	PositionDate
 			/ RawData.PriceDivider
 
 		WHEN RawData.SecurityType in ('CCYOpt') THEN 0 -- This has to be developed
-		WHEN RawData.SecurityType in ('CCYFut') THEN 0 -- This has to be developed
+		--WHEN RawData.SecurityType in ('CCYFut') THEN 0 -- This has to be developed
 
 		ELSE 
 		dbo.fn_GetBaseCCYPrice(

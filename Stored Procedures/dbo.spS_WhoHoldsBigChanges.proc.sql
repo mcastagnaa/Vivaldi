@@ -30,7 +30,8 @@ SELECT 	Positions.PositionDate AS PositionDate,
 	Assets.SecurityGroup AS SecurityGroup,
 	(CASE Assets.SecurityGroup 
 		WHEN 'FixedIn'	THEN @FItolerance
-		WHEN 'Equities'	THEN @EQtolerance END) AS Tolerance,
+		--WHEN 'Equities'	THEN @EQtolerance END) AS Tolerance,
+		ELSE @EQtolerance END) AS Tolerance,
 	Assets.SecurityType AS SecurityType,
 	BMISAssets.PriceDivider AS PriceDivider,
 	Assets.Multiplier AS FuturesMultiplier,

@@ -70,7 +70,7 @@ FROM #Positions AS P LEFT JOIN
 			AND P.Instrument = A.SecurityType
 			AND P.PositionId = A.SecurityId
 			)
-WHERE A.DivBy100 <> 0
+--WHERE A.DivBy100 <> 0
 
 
 --SELECT * FROM #Intermediate
