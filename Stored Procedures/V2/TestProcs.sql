@@ -17,7 +17,8 @@ USE VIVALDI
 --EXEC dbo.spS_GetBondFundsWeights '2012-12-26'
 --EXEC dbo.spS_Top10WeightsSum '2012-Dec-12', 42, null
 --EXEC dbo.spS_GetUKDeskExpStats '2012-Dec-12'
---EXEC dbo.spS_CashReportByFundAllDates '2012-Dec-12', 14
+--EXEC dbo.spS_CashReportByFundAllDates '2014-Jun-23', null
+--EXEC spS_CashReportAllFunds '2014-Jun-23'
 --EXEC dbo.spS_GetEqFundsLiquidity '2012-Dec-12', null
 --EXEC dbo.spS_GetFundsDetailsByDate_KAIROS '2012-12-12', 43 , null
 --EXEC dbo.spS_PricesCheckByDate '2012 Dec 12', 0.1, 0.05
@@ -40,4 +41,6 @@ USE VIVALDI
 
 --EXEC dbo.spS_GetLastProdChanges '2013 Jul 3', 3
 
-EXEC spS_GetOMGIEqExp '19/Mar/2014', null
+--EXEC spS_GetOMGIEqExp '19/Mar/2014', null
+
+EXEC spS_SegMatch '28/Jul/2014'

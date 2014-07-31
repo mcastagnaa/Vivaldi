@@ -185,8 +185,11 @@ SELECT 	@RefDate AS RefDate
 	, ISNULL(LiqFact.YieldVol, 0) AS YieldVol
 	, (SELECT FactorWeight FROM tbl_LIQ_FactorsWeights WHERE Id = 6) AS YieldVolW
 	, PositionSize = (CASE 
-		WHEN GBPSize.PositionGBPMn <= 
-			(SELECT HigherBound FROM tbl_LIQ_PositionSizes AS PS WHERE PS.Id = 1) THEN
+		WHEN (GBPSize.PositionGBPMn <= 
+			(SELECT HigherBound FROM tbl_LIQ_PositionSizes AS PS WHERE PS.Id = 1) OR
+				Positions.MktSector = 'Government')			-- This should deal with Govies as hi liquid
+															-- no matter the position size
+			THEN
 			(SELECT Haircut FROM tbl_LIQ_PositionSizes AS PS WHERE PS.Id = 1)
 		WHEN GBPSize.PositionGBPMn > 
 			(SELECT HigherBound FROM tbl_LIQ_PositionSizes AS PS WHERE PS.Id = 1)

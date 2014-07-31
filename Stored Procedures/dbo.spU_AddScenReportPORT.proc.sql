@@ -40,7 +40,9 @@ UPDATE tbl_ScenReportsStInPORT
 SET PortPerf = NULLIF(PortPerf,0), BenchPerf = NULLIF(BenchPerf,0)
 
 
-INSERT INTO tbl_ScenReports SELECT * FROM tbl_ScenReportsStInPORT
+INSERT INTO tbl_ScenReports 
+SELECT * FROM tbl_ScenReportsStInPORT
+WHERE PortPerf IS NOT NULL
 
 TRUNCATE TABLE tbl_ScenReportsStInPORT
 

@@ -28,7 +28,7 @@ SELECT 	*
 	, ROUND(MktCapLocal/(MarketPrice/PenceQuotesDivider),0) AS MKtUnits
 INTO 	#RawData
 FROM 	dbo.fn_GetCubeDataTable(@RefDate, @FundId)
-WHERE 	FundVehicleId IN (2, 3)
+WHERE 	(FundVehicleId IN (2, 3) OR FundCode in ('GSAFLF', 'TEWK', 'HBOS'))
 	AND FundCode <> 'MFUT'
 	AND FundIsAlive = 1
 	AND FundIsSkip = 0
