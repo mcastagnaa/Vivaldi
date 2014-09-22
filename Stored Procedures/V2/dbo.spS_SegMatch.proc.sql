@@ -124,7 +124,8 @@ SELECT	CubeData.PositionDate
 	, CubeData.FundIsAlive
 	, CubeData.FundIsSkip
 	, CubeData.FundBaseCCYCode AS FundBaseCCY
-	, CubeData.IsCCYExp
+	, (CASE	WHEN CubeData.AssetCCY = CubeData.FundBaseCCYCode THEN 0 
+			ELSE CubeData.IsCCYExp END) AS IsCCYExp
 	, Countries.ISLxEM AS IsEM
 	, CAST((CASE 	WHEN CubeData.SPRatingRank <= 11 THEN 0
 			WHEN (CubeData.SPRatingRank > 11 AND CubeData.SPCleanRating IS NOT NULL) THEN 1
@@ -132,6 +133,8 @@ SELECT	CubeData.PositionDate
 	, ABS(CubeData.BaseCCYExposure / NaVs.CostNaV * CountMeExp * Beta) AS ExpWeightBetaAdjAbs
 	, ABS(CubeData.BaseCCYExposure / NaVs.CostNaV * CountMeExp) AS ExpWeightAbs
 	, CubeData.FundId
+	, (CASE WHEN CubeData.SecurityGroup = 'CashFx' AND CubeData.IsCCYexp = 1 THEN
+			1 ELSE 0 END) AS IsCash
 
 INTO	#FullData						
 FROM	#CubeData AS CubeData LEFT JOIN
@@ -161,7 +164,6 @@ INTO @SegFund
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
-	--SET @SegFund = 143
 	SET @RefFund = (SELECT RefFund FROM tbl_Funds WHERE Id = @SegFund)
 	EXEC spS_SegMatchSubProc @RefDate, @SegFund, @RefFund
 
@@ -183,7 +185,30 @@ SELECT	RefDate
 INTO	#CCYexp
 FROM	tbl_MandateChecks
 WHERE	IsCCYExp = 1
+		AND LongShort <> 'CashBaseCCY'
 GROUP BY	RefDate, SegId, RefId, AssetCCY
+
+SELECT	RefDate
+		, SegId 
+		, RefId
+		, SUM(SegW - RefW) AS Cash
+INTO	#CashExp
+FROM	tbl_MandateChecks
+WHERE	IsCash = 1
+		
+GROUP BY	RefDate, SegId, RefId
+
+SELECT	RefDate
+		, SegId 
+		, RefId
+		, BBGTicker
+		, SUM(SegW) AS SegW 
+		, SUM(RefW) AS RefW
+INTO	#DerivExp
+FROM	tbl_MandateChecks
+WHERE	IsDerivative = 1
+		AND SecurityGroup <> 'CashFX'
+GROUP BY RefDate, SegId, RefId, BBGTicker
 
 SELECT RefDate
 		, SegId
@@ -217,9 +242,31 @@ SELECT	RefDate
 		, SUM(ABS(SegW - RefW)) AS AssetActiveGross
 INTO	#FinalSet
 FROM	#TickerWeights
---WHERE	SecurityGroup <> 'CashFx'
 GROUP BY	RefDate, SegId, RefId
---ORDER BY	RefId, SegId
+
+UNION SELECT ALL
+		RefDate
+		, 'Derivative exp.'
+		, null 
+		, null 
+		, SegId 
+		, RefId 
+		, SUM(SegW - RefW)
+		, SUM(ABS(SegW - RefW))
+FROM	#DerivExp
+GROUP BY	RefDate, SegId, RefId
+
+UNION SELECT ALL
+		RefDate
+		, 'Cash' 
+		, null AS Ticker
+		, null AS Ranking
+		, SegId 
+		, RefId 
+		, SUM(Cash)
+		, null
+FROM	#CashExp
+GROUP BY	RefDate, SegId, RefId
 
 UNION SELECT ALL
 		RefDate
@@ -228,7 +275,7 @@ UNION SELECT ALL
 		, null AS Ranking
 		, SegId 
 		, RefId 
-		, SUM(ActiveCCY)
+		, null
 		, SUM(ABS(ActiveCCY))
 FROM	#CCYexp
 GROUP BY	RefDate, SegId, RefId
@@ -261,8 +308,13 @@ ORDER BY	P.Name + ' ' + P.Surname
 			, D.MandateId
 			, D.Ranking
 
-DROP TABLE #CCYExp, #RankedSc, #FinalSet, #TickerWeights
-DROP TABLE #FullData
+DROP TABLE #CCYExp
+	, #RankedSc
+	, #FinalSet
+	, #TickerWeights
+	, #CashExp
+	, #DerivExp
+	, #FullData
 GO
 --------------------------------------------------------------
 

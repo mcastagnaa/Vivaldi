@@ -40,7 +40,7 @@ USE VIVALDI
 --EXEC dbo.spS_GetScenariosByFundByDate '2012 Nov 1', 18
 
 --EXEC dbo.spS_GetLastProdChanges '2013 Jul 3', 3
-
+EXEC dbo.spS_GetNextProdChanges '2014 Aug 29'
 --EXEC spS_GetOMGIEqExp '19/Mar/2014', null
 
-EXEC spS_SegMatch '28/Jul/2014'
+--EXEC spS_SegMatch '1/Aug/2014'

@@ -17,6 +17,7 @@ GO
 CREATE PROCEDURE [dbo].[spS_VaRReportsDetailsByDate] 
 	@RefDate datetime
 	, @Months integer
+	, @NoFoF bit
 AS
 
 SET NOCOUNT ON;
@@ -53,6 +54,7 @@ WHERE 	Assets.PriceDate = @RefDate AND
 	Assets.CCYIso <> '---'
 	AND Funds.Alive = 1
 	AND Funds.Skip = 0
+	AND ((@NoFoF = 0) OR (Funds.StyleId <> 7))
 
 GROUP BY	Positions.PositionDate
 		, Funds.Id
