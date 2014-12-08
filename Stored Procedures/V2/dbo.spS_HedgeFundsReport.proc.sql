@@ -28,8 +28,10 @@ SELECT 	*
 	, ROUND(MktCapLocal/(MarketPrice/PenceQuotesDivider),0) AS MKtUnits
 INTO 	#RawData
 FROM 	dbo.fn_GetCubeDataTable(@RefDate, @FundId)
-WHERE 	(FundVehicleId IN (2, 3) OR FundCode in ('GSAFLF', 'TEWK', 'HBOS'))
-	AND FundCode <> 'MFUT'
+WHERE 	(FundVehicleId IN (2, 3) OR FundCode in ('GSAFLF', 'TEWK', 'HBOS', 'UKOPP'))
+	AND FundCode NOT IN ('MFUT', 'EURSCOFF', 'OMDUS', 'OMUKALPHA',
+				'SKASIANEQ','SKPACEQ', 'SKEUREQ', 'SKGEQ', 'SKJPNEQ', 
+				'SKUSCAPGR')
 	AND FundIsAlive = 1
 	AND FundIsSkip = 0
 	AND AssetCCY <> '---'
@@ -448,4 +450,4 @@ DROP Table #BotTwoCountryExp
 
 GO
 
-GRANT EXECUTE ON spS_HedgeFundsReport_V2 TO [OMAM\StephaneD]
+GRANT EXECUTE ON spS_HedgeFundsReport_V2 TO [OMAM\StephaneD], [OMAM\ShaunF]

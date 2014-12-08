@@ -372,7 +372,8 @@ FROM	#PerSIG AS PerSIG LEFT JOIN
 WHERE PerSIG.FundCode NOT IN 
 		('SKGBLBND', 'SKEUREQ', 'SKJPNEQ', 'SKGEQ', 'SKUKCONST'
 		, 'SKSPEC3', 'SKSPEC4', 'SKSPEC5', 'SKSPEC6', 'SKSPEC7', 'SKSPEC8'
-		, 'SKGEN34', 'SKGEN36', 'SKGEN44', 'SKGEN46', 'SKUSCAPGR')
+		, 'SKGEN34', 'SKGEN36', 'SKGEN44', 'SKGEN46', 'SKUSCAPGR'
+		, 'SKPACEQ', 'SKASIANEQ','SKUKOPP' )
 
 ----------------------------------------------------------------------
 --== ADDING FUND DETAILS ==--
