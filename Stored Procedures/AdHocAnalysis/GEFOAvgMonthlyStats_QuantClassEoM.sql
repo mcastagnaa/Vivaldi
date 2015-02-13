@@ -2,40 +2,38 @@ USE Vivaldi
 GO
 
 /*
-UPDATE GEARdata
+UPDATE GEFOdata
 SET DateYear = DATEPART(yyyy, PositionDate),
 	DateMonth = DATEPART(mm, PositionDate)
 
 -------------------
 
-UPDATE GEARdata
+UPDATE GEFOdata
 SET QuantCountry = QC.CountryName, QuantRegion = QR.QuantRegion
-FROM	GEARdata LEFT JOIN 
+FROM	GEFOdata AS A LEFT JOIN 
 		tbl_QuantCountry AS QC ON
-			(GEARdata.BMIScode = QC.BMIScode)
+			(A.BMIScode = QC.BMIScode)
 		LEFT JOIN tbl_QuantRegion AS QR ON
 			(QC.CountryName = QR.QuantCountry)
 
 
 SELECT	SecurityGroup, BMISCode, Underlying, QuantCountry, QuantRegion
-FROM	GEARdata 
+FROM	GEFOdata 
 WHERE	(QuantCountry is null or QuantRegion is null)
 		AND SecurityGroup <> 'CashFX'
 GROUP BY SecurityGroup, BMISCode, Underlying, QuantCountry, QuantRegion
-
---DELETE FROM GEARdata WHERE Underlying = 'TREASURY BILL'
 
 */
 
 
 SELECT MAX(PositionDate) AS MonthEnd
 INTO #MonthEndDates
-FROM GEARdata
+FROM GEFOdata
 GROUP BY DateYear, DateMonth
 
 SELECT D.*
 INTO	#TmpEoM
-FROM	GEARdata AS D INNER JOIN 
+FROM	GEFOdata AS D INNER JOIN 
 		#MonthEndDates AS EoM ON (EoM.MonthEnd = D.PositionDate)
 
 DROP TABLE #MonthEndDates
@@ -150,7 +148,7 @@ WHERE SecurityGroup = 'Equities'
 GROUP BY DateYear, DateMonth, PositionDate, IndustryGroup
 
 SET @COL =	STUFF((SELECT distinct ',' + QUOTENAME(dS.IndustryGroup)
-			FROM #TmpGrouping AS dS ORDER BY 1
+			FROM #TmpGrouping AS dS
 			FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
 
 SET @QRY =	'SELECT DateYear * 100 + DateMonth AS DATE, ' + @COL +
@@ -176,7 +174,7 @@ WHERE SecurityGroup = 'Equities'
 GROUP BY DateYear, DateMonth, PositionDate, IndustryGroup
 
 SET @COL =	STUFF((SELECT distinct ',' + QUOTENAME(dS.IndustryGroup)
-			FROM #TmpGrouping AS dS ORDER BY 1
+			FROM #TmpGrouping AS dS
 			FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
 
 SET @QRY =	'SELECT DateYear * 100 + DateMonth AS DATE, ' + @COL +
@@ -184,17 +182,12 @@ SET @QRY =	'SELECT DateYear * 100 + DateMonth AS DATE, ' + @COL +
 			PIVOT
 				(AVG(Stat) FOR IndustryGroup in (' + @COL + ')
 				) P ORDER BY DateYear, DateMonth'
+
 EXECUTE(@QRY)
 
-SET @COL =	STUFF((SELECT distinct ';' + QUOTENAME(dS.IndustryGroup)
-			FROM #TmpGrouping AS dS ORDER BY 1
-			FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
-
-SELECT @COL
-
 --DECLARE @COL AS NVARCHAR(MAX)
---SELECT DISTINCT IndustryGroup
---FROM #TmpGrouping
+SELECT DISTINCT IndustryGroup
+FROM #TmpGrouping
 
 DROP TABLE #TmpGrouping
 GO

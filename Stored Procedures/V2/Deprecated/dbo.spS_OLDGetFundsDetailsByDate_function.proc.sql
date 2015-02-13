@@ -1,43 +1,33 @@
 USE Vivaldi
 GO
 
-DECLARE @PercDayVol float
-		, @StartDate datetime
-		, @EndDate datetime
-		, @FundId integer
-		, @DataDate datetime
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 
-SET @PercDayVol = 0.1
-SET @FundId =  115 -- 115 is ARBEA, 14 is GEAR, 15 GEFO
-SET @EndDate = '2014 Dec 31'
-SET @StartDate = --DateAdd(yy,-5,@EndDate)
-				'2014 Oct 1' --1/May/2010 to get the values for GICS sectors
+IF  EXISTS (
+	SELECT * FROM dbo.sysobjects 
+	WHERE 	id = OBJECT_ID(N'dbo.spS_GetFundsDetailsByDate_V2') AND 
+		OBJECTPROPERTY(id,N'IsProcedure') = 1
+	)
+DROP PROCEDURE dbo.spS_GetFundsDetailsByDate_V2
+GO
 
--------------------------------------------------------------------
---TRUNCATE TABLE ????data --only if you need to start from scratch (comment over if append)
--- Create table first if you need a new fund
+CREATE PROCEDURE dbo.spS_GetFundsDetailsByDate_V2
+	@RefDate datetime
+	, @FundId int
+	, @PercDayVol float
+AS
 
-DECLARE Dates_Cursor CURSOR FOR
-SELECT	NaVPLDate
-FROM	tbl_FundsNaVsAndPLs
-WHERE	FundId = @FundId
-		AND NaVPLDate >= @StartDate
-		AND NaVPLDate <= @EndDate
-GROUP BY NaVPLDate
-ORDER BY NaVPLDate
+SET NOCOUNT ON;
 
-OPEN Dates_Cursor
-FETCH NEXT FROM Dates_Cursor
-INTO @DataDate
+----------------------------------------------------------------------------------
+SELECT * INTO #CubeData FROM fn_GetCubeDataTable(@RefDate, @FundId)
+----------------------------------------------------------------------------------
 
-WHILE @@FETCH_STATUS = 0
-BEGIN
-------------------------------------------------------------------------
-
-SELECT * INTO #CubeData FROM fn_GetCubeDataTable(@DataDate, @FundId)
-
-INSERT INTO ARBEAdata
-SELECT	CubeData.PositionDate
+SELECT	CubeData.FundCode
+	, CubeData.FundId
 	, CubeData.SecurityGroup
 	, CubeData.SecurityType
 	, CubeData.IsDerivative
@@ -83,8 +73,6 @@ SELECT	CubeData.PositionDate
 	, CubeData.BondYearsToMaturity AS YearsToMat
 	, CubeData.EquityMarketStatus AS EquityMktStatus
 	, CubeData.LongShort
-	, (CASE WHEN (CubeData.BaseCCYExposure / NaVs.CostNaV * CountMeExp * Beta) >= 0 THEN 'LongBAdj'
-		ELSE 'ShortBAdj' END) AS LongShortBAdj
 	, DaysToLiquidate = 
 		NULLIF(
 			ABS(CubeData.PositionSize) / 
@@ -104,14 +92,69 @@ SELECT	CubeData.PositionDate
 	, CubeData.EbitdaTP
 	, CubeData.MktCapLocal
 	, CubeData.MktCapUSD
+	, CubeData.KRD3m
+	, CubeData.KRD6m
+	, CubeData.KRD1y
+	, CubeData.KRD2y
+	, CubeData.KRD3y
+	, CubeData.KRD4y
+	, CubeData.KRD5y
+	, CubeData.KRD6y
+	, CubeData.KRD7y
+	, CubeData.KRD8y
+	, CubeData.KRD9y
+	, CubeData.KRD10y
+	, CubeData.KRD15y
+	, CubeData.KRD20y
+	, CubeData.KRD25y
+	, CubeData.KRD30y
+	, CubeData.EffDur
+	, CubeData.InflDur
+	, CubeData.RealDur
+	, CubeData.SpreadDur
+	, CubeData.OAS
+	, CubeData.CnvYield
+	, CubeData.CoupType
+	, CubeData.Bullet AS IsBullet
 	, CubeData.SecType
 	, CubeData.CollType
 	, CubeData.MktSector
 	, CubeData.ShortMom
+	, CubeData.CDSPayFreq
+	, CubeData.CDSMaturityDate
+	, CubeData.CDSRecRate
+	, CubeData.CDSNotionalSpread
+	, CubeData.CDSMktSpread
+	, CubeData.CDSMktPremium
+	, CubeData.CDSAccrued
+	, CubeData.CDSModel
+	, CubeData.CDSPrevPremium
 	, UpDown = CASE	WHEN CubeData.ShortMom > 0 THEN 'Up' 
 			WHEN CubeData.ShortMom < 0 THEN 'Down' 
 			ELSE NULL 
 		END
+	, OptDelta
+	, OptGamma
+	, OptVega
+	, OptDaysToExp
+	, ABS(CubeData.PositionSize) * CubeData.FutInitialMargin AS MarginLocal
+
+/*		, CubeData.AssetCCYQuote
+		, CubeData.AssetCCYIsInverse
+		, CubeData.BaseCCYQuote
+		, CubeData.FundBaseCCYIsInverse
+		, CubeData.SecurityType*/
+
+	, CASE WHEN CubeData.FutInitialMargin <> 0 THEN
+		dbo.fn_GetBaseCCYPrice(ABS(CubeData.PositionSize) * CubeData.FutInitialMargin
+			, CubeData.AssetCCYQuote
+			, CubeData.AssetCCYIsInverse
+			, CubeData.BaseCCYQuote
+			, CubeData.FundBaseCCYIsInverse
+			, CubeData.SecurityType
+			, 0) 
+		ELSE 0 END
+		AS MarginBase
 	, CASE WHEN CubeData.FutInitialMargin <> 0 THEN
 		dbo.fn_GetBaseCCYPrice(ABS(CubeData.PositionSize) * CubeData.FutInitialMargin
 			, CubeData.AssetCCYQuote
@@ -136,13 +179,9 @@ SELECT	CubeData.PositionDate
 	, CAST((CASE 	WHEN CubeData.SPRatingRank <= 11 THEN 0
 			WHEN (CubeData.SPRatingRank > 11 AND CubeData.SPCleanRating IS NOT NULL) THEN 1
 		 	ELSE NULL END) AS Bit) AS IsHY
-	, ABS(CubeData.BaseCCYExposure / NaVs.CostNaV * CountMeExp * Beta) AS ExpWeightBetaAdjAbs
-	, ABS(CubeData.BaseCCYExposure / NaVs.CostNaV * CountMeExp) AS ExpWeightAbs
-	, DATEPART(yyyy, PositionDate) AS DateYear
-	, DATEPART(mm, PositionDate) AS DateMonth
-	, null AS QuantCountry
-	, null AS QuantRegion
+	, CubeData.PositionDate
 
+								
 FROM	#CubeData AS CubeData LEFT JOIN
 	tbl_FundsNaVsAndPLs AS NaVs ON
 		(CubeData.FundId = NaVs.FundId
@@ -150,14 +189,17 @@ FROM	#CubeData AS CubeData LEFT JOIN
 	tbl_CountryCodes AS Countries ON
 		(CubeData.CountryISO = Countries.ISOCode)
 
+	
+ORDER BY	FundId
+		, SecurityGroup
+		, AssetCCY
+		, Underlying
+
+
+----------------------------------------------------------------------------------
 DROP TABLE #CubeData
-
-
-------------------------------------------------------------------------
---	SELECT @DataDate
-	FETCH NEXT FROM Dates_Cursor
-	INTO @DataDate
-END
-
-CLOSE Dates_Cursor
-DEALLOCATE Dates_Cursor
+GO
+----------------------------------------------------------------------------------
+GRANT EXECUTE ON dbo.spS_GetFundsDetailsByDate_V2 TO 
+		[OMAM\StephaneD]
+		, [OMAM\OMAM UK OpsTAsupport] 

@@ -15,8 +15,8 @@ FROM tbl_FundsNavsAndPLs AS Stat LEFT JOIN
 		vw_FundsTypology AS F On (
 			Stat.FundId = F.FundId
 		)
-WHERE	NaVPLDate > '2012 Dec 31' 
-		AND NaVPLDate <= '2013 Dec 31' 
+WHERE	NaVPLDate > '2013 Dec 31' 
+		AND NaVPLDate <= '2014 Dec 31' 
 
 GROUP BY F.FundCode
 		, F.FundName

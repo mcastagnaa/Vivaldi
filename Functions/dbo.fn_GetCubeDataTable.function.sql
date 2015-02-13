@@ -829,8 +829,8 @@ SELECT	PositionDate
 			ISNULL(RawData.UnderFutConvFactor,1)
 
 		WHEN RawData.SecurityType in ('CDS', 'CDSIndex') THEN
-		-dbo.fn_GetBaseCCYPrice(
-			RawData.MarketPrice
+		dbo.fn_GetBaseCCYPrice(
+			RawData.StartPrice
 			, RawData.AssetCCYQuote
 			, RawData.AssetCCYIsInverse
 			, RawData.BaseCCYQuote
@@ -839,6 +839,7 @@ SELECT	PositionDate
 			, 0) 
 			* RawData.Multiplier 
 			* RawData.PositionSize
+			* (CASE RawData.CDSBuySell WHEN 'BUY' THEN -1 ELSE 1 END)
 			/ RawData.PriceDivider
 
 		WHEN RawData.SecurityType in ('CCYOpt') THEN 0 -- This has to be developed

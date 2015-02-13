@@ -28,6 +28,9 @@ SELECT	ScenView.ScenLabel AS ScenarioName
 		, ScenData.PortPerf*ScenData.MktVal/NaVs.CostNav AS PortPerf
 		, ScenData.BenchPerf
 		, ScenData.PortPerf*ScenData.MktVal/NaVs.CostNav - ScenData.BenchPerf AS RelPerf
+		, ScenData.FundId
+		, Funds.FundCode
+		, Funds.FundName
 FROM	tbl_ScenReports AS ScenData LEFT JOIN
 		tbl_EnumScen AS ScenView ON (
 			ScenData.ReportId = ScenView.Id
@@ -35,10 +38,13 @@ FROM	tbl_ScenReports AS ScenData LEFT JOIN
 		tbl_FundsNaVsAndPLs AS NaVs ON (
 			NaVs.FundId = ScenData.FundId
 			AND NaVs.NaVPLDate = ScenData.ReportDate
-		)
+			) LEFT JOIN
+		tbl_Funds AS Funds ON (
+			ScenData.FundId = Funds.Id
+			)
 WHERE	ScenData.ReportDate = @RefDate
-	AND	ScenData.FundId = @FundId
+	AND	((@FundId Is NULL) OR (ScenData.FundId = @FundId))
 GO
 
-GRANT EXECUTE ON spS_GetScenariosByFundByDate TO [OMAM\StephaneD]
+GRANT EXECUTE ON spS_GetScenariosByFundByDate TO [OMAM\StephaneD], [OMAM\ShaunF]
 

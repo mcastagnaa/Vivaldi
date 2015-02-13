@@ -32,24 +32,14 @@ SELECT	CubeData.FundCode
 	, SUM(CubeData.BaseCCYMarketValue) AS MktNaVPricesOnly
 	, SUM(CubeData.BaseCCYCostValue * (1 + CubeData.AssetReturn) * 
 			(1 + CubeData.FxReturn)) AS MktNaV
-	, SUM((CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
-			ELSE CubeData.BaseCCYExposure END)
-			* CubeData.AssetReturn) AS AssetPL
-	, SUM((CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
-			ELSE CubeData.BaseCCYExposure END) 
-			* CubeData.FxReturn) AS FxPL
-	, SUM((CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
-			ELSE CubeData.BaseCCYExposure END) 
-			* (CubeData.AssetReturn + CubeData.FxReturn)) AS TotalPL
+	, SUM(BaseCCYCostValue * CubeData.AssetReturn) AS AssetPL
+	, SUM(BaseCCYCostValue * CubeData.FxReturn) AS FxPL
+	, SUM(BaseCCYCostValue * (CubeData.AssetReturn + CubeData.FxReturn)) AS TotalPL
 
 INTO	#NaVs
 
 FROM	#CubeData AS CubeData LEFT JOIN
-		tbl_NotionalNaVs AS ManualNaVs ON 
-			(CubeData.FundId = ManualNaVs.FundId) LEFT JOIN
-		tbl_BMISAssets AS Asset ON
-			(CubeData.SecurityType = Asset.AssetName)
-
+	tbl_NotionalNaVs AS ManualNaVs ON (CubeData.FundId = ManualNaVs.FundId)
 
 WHERE	FundIsAlive = 1
 

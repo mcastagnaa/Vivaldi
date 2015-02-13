@@ -46,20 +46,30 @@ SELECT	CubeData.FundCode
 	, CubeData.AssetReturn AS AssetChange
 	, CubeData.FxReturn AS FxChange
 --BaseCCY PL
-	, CubeData.AssetReturn * CubeData.BaseCCYCostValue AS AssetPL
-	, CubeData.FXReturn * CubeData.BaseCCYCostValue AS FxPL
-	, CubeData.BaseCCYCostValue * ((1 + CubeData.FXReturn) 
+	, CubeData.AssetReturn * 
+		(CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) AS AssetPL
+	, CubeData.FXReturn * (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) FxPL
+	, (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) * ((1 + CubeData.FXReturn) 
 		* (1 + CubeData.AssetReturn) - 1) AS TotalPL
 --PL in Bps of CostNaV
-	, CubeData.AssetReturn * CubeData.BaseCCYCostValue / NaVs.CostNaV AS AssetPLOnNaV
-	, CubeData.FXReturn * CubeData.BaseCCYCostValue / NaVs.CostNaV AS FXPLOnNaV
-	, CubeData.BaseCCYCostValue * ((1 + CubeData.FXReturn) 
+	, CubeData.AssetReturn * (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) / NaVs.CostNaV AS AssetPLOnNaV
+	, CubeData.FXReturn * (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) / NaVs.CostNaV AS FXPLOnNaV
+	, (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) * ((1 + CubeData.FXReturn) 
 		* (1 + CubeData.AssetReturn) - 1)/ NaVs.CostNaV
 		 AS PLOnNaV
 --PL over TotalPL
-	, CubeData.AssetReturn * CubeData.BaseCCYCostValue/NULLIF(NaVs.TotalPL, 0) AS AssetPLonTotalPL
-	, CubeData.FXReturn * CubeData.BaseCCYCostValue/NULLIF(NaVs.TotalPL, 0) AS FxPLonTotalPL
-	, CubeData.BaseCCYCostValue * ((1 + CubeData.FXReturn) 
+	, CubeData.AssetReturn * (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END)/NULLIF(NaVs.TotalPL, 0) AS AssetPLonTotalPL
+	, CubeData.FXReturn * (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END)/NULLIF(NaVs.TotalPL, 0) AS FxPLonTotalPL
+	, (CASE Asset.PLOnCost WHEN 1 THEN CubeData.BaseCCYCostValue
+							ELSE CubeData.BaseCCYExposure END) * ((1 + CubeData.FXReturn) 
 		* (1 + CubeData.AssetReturn) - 1) / NULLIF(NaVs.TotalPL, 0)
 		 AS PLOnTotalPL
 
@@ -187,7 +197,9 @@ FROM	#CubeData AS CubeData LEFT JOIN
 		(CubeData.FundId = NaVs.FundId
 		AND CubeData.PositionDate = NaVs.NaVPLDate) LEFT JOIN
 	tbl_CountryCodes AS Countries ON
-		(CubeData.CountryISO = Countries.ISOCode)
+		(CubeData.CountryISO = Countries.ISOCode) LEFT JOIN
+	tbl_BMISAssets AS Asset ON
+		(CubeData.SecurityType = Asset.AssetName)
 
 	
 ORDER BY	FundId
@@ -201,5 +213,5 @@ DROP TABLE #CubeData
 GO
 ----------------------------------------------------------------------------------
 GRANT EXECUTE ON dbo.spS_GetFundsDetailsByDate_V2 TO 
-		[OMAM\StephaneD]
+		[OMAM\StephaneD], [OMAM\ShaunF]
 		, [OMAM\OMAM UK OpsTAsupport] 

@@ -484,4 +484,4 @@ DROP TABLE #UppBounds
 GO
 ------------------------------------------------------------------------------------------
 
-GRANT EXECUTE ON spS_HFLimitsCheck_V2 TO [OMAM\StephaneD]
+GRANT EXECUTE ON spS_HFLimitsCheck_V2 TO [OMAM\StephaneD], [OMAM\ShaunF]
