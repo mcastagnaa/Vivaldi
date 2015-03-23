@@ -41,6 +41,7 @@ WHERE	(@refDate IS NULL OR P.PositionDate = @RefDate)
 			'SMID', 'UKDEFOS', 'UKSSO', 'TEWK', 'SKANMC', 'EBIOM'
 			)*/
 		AND P.SecurityType IN ('CFD', 'Equities')
+		AND F.Id NOT IN (321)
 GROUP BY	P.SecurityType, P.PositionId, P.StartPrice, P.PositionDate,
 			F.ShortCode, F.OurTeam
 ORDER BY P.PositionId, P.StartPrice

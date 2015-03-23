@@ -43,6 +43,11 @@ SELECT	Scenarios.ReportId
 		, Funds.FundCode
 		, RepDets.ScenLabel
 		, (CASE WHEN Scenarios.BenchPerf IS NULL THEN 0 ELSE 1 END) AS IsRelative
+		, Funds.HoDLongName AS HoD
+		, '<b>' + Funds.FundCode + ' - <i>' + Funds.FundName + '</i></b>  <font color="gray">(' 
+			+ FundClass + ', ' + VehicleName 
+			+ ISNULL(', benchmark: ' + BenchLong, '')
+			+ ')</font>' AS FundLabel
 	
 FROM	tbl_ScenReports AS Scenarios JOIN
 		#RankedSc AS Ranked ON (
@@ -57,9 +62,11 @@ FROM	tbl_ScenReports AS Scenarios JOIN
 			Scenarios.FundId = NaVs.FundId
 			AND Scenarios.ReportDate = NaVs.NavPLDate
 			) LEFT JOIN
-		tbl_Funds AS Funds ON (
-			Funds.Id = Scenarios.FundId
-			)
+		vw_FundsTypology AS Funds ON (
+			Funds.FundId = Scenarios.FundId
+			) 
+		
+			
 WHERE	Scenarios.ReportDate = @RefDate
 		AND Ranked.RankNo <= 3
 ORDER BY	Funds.FundCode ASC
