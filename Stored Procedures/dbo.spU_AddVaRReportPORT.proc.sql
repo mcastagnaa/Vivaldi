@@ -50,7 +50,8 @@ FROM	tbl_VaRReport_StInPORT AS M JOIN
 DELETE
 FROM	tbl_VaRReport_StInPORT
 WHERE	RIGHT(BBGInstrId, 3) = '_EC'
-
+		OR SecTicker = ''
+		OR RIGHT(SecTicker, 3) = '_EC'
 ----------------------------------------------------------
 
 DROP Table #FutsEC
