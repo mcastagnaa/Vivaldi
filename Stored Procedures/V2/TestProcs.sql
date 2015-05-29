@@ -1,7 +1,11 @@
-USE VIVALDI
+USE VIVALDI;
+
+DECLARE @Today AS datetime
+SET @Today = DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
+
 --EXEC dbo.spS_GetFundsDetailsByDateUKSEF 0.2
---EXEC dbo.spS_GetFundsDetailsByDate_V2 '2014 Feb 20', 35 , null
---EXEC dbo.spS_GetNaVPLExpData_V2 '2014-3-4', 5
+--EXEC dbo.spS_GetFundsDetailsByDate_V2 '2015 Apr 30', null , null
+--EXEC dbo.spS_GetNaVPLExpData_V2 '2015-4-20', null
 --EXEC dbo.spS_GetFundsDetailsAndRiskByDate_V2 '12 Dec 2012', 18, null
 --EXEC dbo.spS_CalcFundsStatistics_V2 '2012-12-12', null, null
 --EXEC dbo.spS_GetFundsFactorsExposure_V2 '2012-12-12', null, null
@@ -41,7 +45,8 @@ USE VIVALDI
 
 --EXEC dbo.spS_GetLastProdChanges '2013 Jul 3', 3
 --EXEC dbo.spS_GetNextProdChanges '2014 Aug 29'
-EXEC dbo.spS_OffsetCheck '2014 Dec 17'
+--EXEC dbo.spS_OffsetCheck '2014 Dec 17'
+EXEC dbo.spS_CalcFutOffsets @Today
 --EXEC spS_GetOMGIEqExp '19/Mar/2014', null
 
 --EXEC spS_SegMatch '1/Aug/2014'

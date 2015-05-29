@@ -109,8 +109,10 @@ FROM	#CubeData AS CubeData LEFT JOIN
 	tbl_CountryCodes AS Countries ON
 		(CubeData.CountryISO = Countries.ISOCode)
 
-WHERE	CubeData.IsCCYExp = 0
-		AND CubeData.SecurityType NOT IN ('CDSIndex', 'CDS', 'IndexOpt', 'EqOpt', 'BondFutOpt')
+WHERE	(CubeData.IsCCYExp = 0 OR
+			CubeData.SecurityType = 'CCYFut')
+		AND CubeData.SecurityType NOT IN ('CDSIndex', 'CDS', 'IndexOpt', 'EqOpt', 'BondFutOpt'
+			)
 		AND FundCode NOT LIKE 'FOUND%'
 ------------------------------------------------------------------------
 

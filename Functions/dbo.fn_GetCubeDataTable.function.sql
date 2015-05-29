@@ -463,8 +463,8 @@ SELECT 	Positions.PositionDate AS PositionDate
 	, PenceQuotesDivider =
 		CASE
 			WHEN Assets.DivBy100 = 1 THEN 100
-			WHEN Positions.SecurityType = 'Bonds'
-				AND Assets.CCYIso = 'BRL' THEN 0.01
+--			WHEN Positions.SecurityType = 'Bonds'
+--				AND Assets.CCYIso IN ('BRL', 'MXN') THEN 0.01
 			WHEN Positions.SecurityType = 'Bonds'
 				AND Assets.MktSector = 4 THEN 0.01 -- Preferred
 		ELSE 1
@@ -698,8 +698,8 @@ SELECT	PositionDate
 				(100 - RawData.StartPrice)			
 
 			ELSE RawData.StartPrice + (RawData.BondAccrual - RawData.BondAccrual1d)
-				* (CASE WHEN RawData.SecurityType = 'Bonds'
-					AND RawData.AssetCCY = 'BRL' THEN 0 ELSE 1 END)
+--				* (CASE WHEN RawData.SecurityType = 'Bonds'
+--					AND RawData.AssetCCY IN ('BRL', 'MXN') THEN 0 ELSE 1 END)
 			END) 	
 		, RawData.AssetCCYPrevQuote
 		, RawData.AssetCCYIsInverse
@@ -723,8 +723,8 @@ SELECT	PositionDate
 		(CASE 	WHEN RawData.SecurityType LIKE 'CDS%' THEN
 				(100 - RawData.MarketPrice)			
 			ELSE RawData.MarketPrice + RawData.BondAccrual 
-				* (CASE WHEN RawData.SecurityType = 'Bonds'
-					AND RawData.AssetCCY = 'BRL' THEN 0 ELSE 1 END)
+--				* (CASE WHEN RawData.SecurityType = 'Bonds'
+--					AND RawData.AssetCCY IN ('BRL', 'MXN') THEN 0 ELSE 1 END)
 			END)
 		, RawData.AssetCCYQuote		-- matching change above getting rid of 1d accrual vs. live
 		, RawData.AssetCCYIsInverse
@@ -848,9 +848,9 @@ SELECT	PositionDate
 		ELSE 
 		dbo.fn_GetBaseCCYPrice(
 			RawData.StartPrice + 
-				(RawData.BondAccrual - RawData.BondAccrual1d) *
-				(CASE WHEN RawData.SecurityType = 'Bonds'
-					AND RawData.AssetCCY = 'BRL' THEN 0 ELSE 1 END)
+				(RawData.BondAccrual - RawData.BondAccrual1d)
+--				* (CASE WHEN RawData.SecurityType = 'Bonds'
+--					AND RawData.AssetCCY IN ('BRL', 'MXN') THEN 0 ELSE 1 END)
 			, RawData.AssetCCYPrevQuote
 			, RawData.AssetCCYIsInverse
 			, RawData.BaseCCYPrevQuote

@@ -23,13 +23,18 @@ SELECT	 CcyDetails.Id
 	, ActualQuotes.LastQuoteDate AS FXQuoteDate
 	, ActualQuotes.BBGCode
 	, ActualQuotes.LastQuote
-	, (SELECT PrevQuotes.LastQuote
-		FROM tbl_FXQuotes AS PrevQuotes
-		WHERE PrevQuotes.ISO = ActualQuotes.ISO
-			AND PrevQuotes.LastQuoteDate = (SELECT MAX(LastQuoteDate)
-							FROM	tbl_FXQuotes
-							WHERE LastQuoteDate < ActualQuotes.LastQuoteDate)
-	) AS PreviousQuote
+	, ActualQuotes.PreviousQuote
+--	, (SELECT PrevQuotes.LastQuote
+--		FROM tbl_FXQuotes AS PrevQuotes
+--		WHERE PrevQuotes.ISO = ActualQuotes.ISO
+--			AND PrevQuotes.LastQuoteDate = (SELECT MAX(LastQuoteDate)
+--							FROM	tbl_FXQuotes
+--							WHERE LastQuoteDate < ActualQuotes.LastQuoteDate)
+--	) AS PreviousQuote
+-- The commented-out version would keep a continous record of FX performances
+-- but it requires the full TS of the FX quotes. On 20.4.2015 NGN and RON where
+-- added without adding that full TS which is in the way of pulling this view
+-- as it was pulled before.
 	, CcyDetails.IsInverse
 	, CcyDetails.Cluster
 	, CcyDetails.Name

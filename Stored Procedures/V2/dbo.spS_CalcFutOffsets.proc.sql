@@ -8,13 +8,13 @@ GO
 
 IF  EXISTS (
 	SELECT * FROM dbo.sysobjects 
-	WHERE 	id = OBJECT_ID(N'dbo.spS_CheckFutOffsets') AND 
+	WHERE 	id = OBJECT_ID(N'dbo.spS_CalcFutOffsets') AND 
 		OBJECTPROPERTY(id,N'IsProcedure') = 1
 	)
-DROP PROCEDURE dbo.spS_CheckFutOffsets
+DROP PROCEDURE dbo.spS_CalcFutOffsets
 GO
 
-CREATE PROCEDURE dbo.spS_CheckFutOffsets
+CREATE PROCEDURE dbo.spS_CalcFutOffsets
 	@RefDate datetime
 AS
 
@@ -135,68 +135,35 @@ FundCode 		nvarchar(25)
 INSERT INTO #PositionDets
 EXEC spS_GetFundsDetailsByDate_V2 @RefDate, null, null
 ----------------------------------------------------------------------------------
+DECLARE @USDFxRate AS FLOAT
 
-SELECT	FundId
-		, AssetCCY
-		, BMISCode
-		, CostMarketVal AS CurrentOffSet
-		, CostMarketVal/PositionSize AS FXRate
-INTO	#OffsetsDets
+SET @USDFxRate = (
+	SELECT StartPrice
+	FROM #PositionDets
+	WHERE SecurityType = 'FutOft'
+		AND FundCode = 'SKDIV'
+		AND BMISCode = 'USD Curncy'
+	)
+
+SELECT	FundCode
+		, -SUM(CostMarketVal)*@USDFxRate AS Offset
 FROM	#PositionDets
-WHERE	SecurityType IN ('FutOft') AND CostMarketVal <> 0
-		
+WHERE	FundCode IN ('SKDIV', 'SKGEN34', 'SKGEN36', 'SKGEN44'
+	, 'SKGEN46', 'SKINTDIV', 'SKINTGRW', 'SKSPEC3', 'SKSPEC4'
+	, 'SKSPEC5', 'SKSPEC6', 'SKSPEC7', 'SKSPEC8'
+	, 'SKSTRATBND')
+	AND AssetCCY = 'USD'
+	AND SecurityType IN ('BondFut', 'IndexFut', 'CCYFut')
+GROUP BY FundCode
 
-SELECT	A.FundCode
-		, A.AssetCCY
-		, O.BMISCode
-		, N.CostNaV
-		, SUM(A.CostMarketVal) AS NetValueBase
-		, SUM(A.CostMarketVal)/N.CostNaV AS NetValOnNaV
-		, O.FXRate
-		, O.CurrentOffset/O.FXRate AS CurrentOffsetLocal
-		, -SUM(A.CostMarketVal)/O.FxRate AS CorrectionLocal
-		, (O.CurrentOffset - SUM(A.CostMarketVal))/O.FxRate AS NewOffsetLocal
-		, 'Amended' AS Status
-		, 'FutOft' AS SecurityType
-
-INTO	#Amendments
-		
-FROM	#PositionDets AS A LEFT JOIN
-		tbl_FundsNavsAndPLs AS N ON (
-			A.FundId = N.FundId
-			AND A.PositionDate = N.NaVPLDate
-			) LEFT JOIN
-		#OffsetsDets AS O ON (
-			A.FundId = O.FundId
-			AND A.AssetCCY = O.AssetCCY
-			)
-WHERE	IsDerivative = 1
-		AND SecurityType IN ('FutOft', 'IndexFut', 'BondFut', 'IntRateFut', 
-							'AgsCmdtFut', 'EngyCmdtFut', 'BMtlCmdtFut', 
-							'PMtlCmdtFut', 'CCYFut')
-GROUP BY	A.FundCode, A.AssetCCY, N.CostNaV, O.FxRate, O.CurrentOffset, O.BMISCode
-HAVING		ABS(SUM(A.CostMarketVal)/N.CostNaV) > 0.0005
-
-
-UPDATE P
-SET P.Units = A.NewOffsetLocal
-FROM	tbl_positions AS P JOIN
-		#Amendments AS A ON (
-			A.SecurityType = P.SecurityType
-			AND P.FundShortName = A.FundCode
-			AND P.PositionId = A.BMISCode
-			AND P.PositionDate = @RefDate
-			)
-
-SELECT * FROM #Amendments
 
 ---------------------------------------------------------------------------------
 
 DROP TABLE #PositionDets
-DROP TABLE #OffsetsDets
-DROP TABLE #Amendments
+--DROP TABLE #OffsetsDets
+--DROP TABLE #Amendments
 
 GO
 
 ----------------------------------------------------------------------------------
-GRANT EXECUTE ON dbo.spS_CheckFutOffsets TO [OMAM\StephaneD]
+GRANT EXECUTE ON dbo.spS_CalcFutOffsets TO [OMAM\StephaneD], [OMAM\ShaunF]
